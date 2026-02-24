@@ -1,7 +1,4 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class DatabaseManager {
     private final String url = System.getenv("DB_URL");
@@ -24,6 +21,22 @@ public class DatabaseManager {
             stmt.setString(3, game.coverUrl());
 
             stmt.executeUpdate();
+        }
+    }
+
+    public void displayGames() throws SQLException {
+        String query = """
+                SELECT * FROM games;
+                """;
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                System.out.println(rs.getLong("id") + " | " +
+                        rs.getString("name") + " | " +
+                        rs.getString("cover_url"));
+            }
         }
     }
 }
