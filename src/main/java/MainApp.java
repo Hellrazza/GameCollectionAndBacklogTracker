@@ -22,6 +22,10 @@ public class MainApp extends Application {
 
         Button searchButton = new Button("Search");
 
+        ComboBox<Integer> limitBox = new ComboBox<>();
+        limitBox.getItems().addAll(5, 10, 15, 20, 25);
+        limitBox.setValue(5);
+
         ListView<Game> resultsList = new ListView<>();
 
         resultsList.setCellFactory(param -> new ListCell<>() {
@@ -60,7 +64,7 @@ public class MainApp extends Application {
 
         searchButton.setOnAction(e -> {
             try {
-                List<Game> games = service.searchGame(searchField.getText());
+                List<Game> games = service.searchGame(searchField.getText(), limitBox.getValue());
                 resultsList.getItems().clear();
 
                 for (Game game : games) {
@@ -71,7 +75,7 @@ public class MainApp extends Application {
             }
         });
 
-        VBox root = new VBox(10, searchField, searchButton, resultsList);
+        VBox root = new VBox(10, searchField, limitBox, searchButton, resultsList);
         root.setStyle("-fx-padding: 20;");
 
         Scene scene = new Scene(root, 400, 500);
