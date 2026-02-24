@@ -1,3 +1,5 @@
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -21,7 +23,14 @@ public class TwitchAuth {
         try {
             HttpResponse<String> response =
                     client.send(request, HttpResponse.BodyHandlers.ofString());
-            return response.body();
+
+            ObjectMapper mapper = new ObjectMapper();
+
+            TwitchTokenResponse token =
+                    mapper.readValue(response.body(), TwitchTokenResponse.class);
+
+            return token.getAccessToken();
+
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             return null;
