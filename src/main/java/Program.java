@@ -8,14 +8,12 @@ public class Program {
         String accessToken = TwitchAuth.getAccessToken(clientID, clientSecret);
 
         IGDBService service = new IGDBService(clientID, accessToken);
+        DatabaseManager databaseManager = new DatabaseManager();
 
-        List<Game> games = service.searchGame("Dark Souls");
+        List<Game> games = service.searchGame("LittleBigPlanet");
 
         for (Game game : games) {
-            System.out.println("ID: " + game.id());
-            System.out.println("Name: " + game.name());
-            System.out.println("Cover: " + game.cover());
-            System.out.println("----------");
+            databaseManager.saveGame(game);
         }
     }
 }
