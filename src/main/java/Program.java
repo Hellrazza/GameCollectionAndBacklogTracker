@@ -8,7 +8,7 @@ public class Program {
 
         IGDBService service = new IGDBService(clientID, accessToken);
 
-        List<Game> games = service.searchGame("Fallout", 10);
+        List<Game> games = service.searchGame("Dark Souls", 10, "Most Popular");
 
         for (Game game : games) {
             System.out.println(game);

@@ -32,8 +32,10 @@ public class MainApp extends Application {
         sortBox.getItems().addAll("Alphabetical",
                 "Newest",
                 "Oldest",
-                "Highest Rating");
-        sortBox.setValue("Alphabetical");
+                "Highest Rated",
+                "Number of Ratings",
+                "Relevance");
+        sortBox.setValue("Relevance");
 
         resultsList.setCellFactory(param -> new ListCell<>() {
             private final ImageView imageView = new ImageView();
@@ -53,7 +55,7 @@ public class MainApp extends Application {
                 if (empty || game == null) {
                     setGraphic(null);
                 } else {
-                    nameLabel.setText(game.name());
+                    nameLabel.setText(game.name() + " " + game.rating());
 
                     if (game.coverUrl() != null) {
                         String URL = game.coverUrl();
@@ -71,7 +73,7 @@ public class MainApp extends Application {
 
         searchButton.setOnAction(e -> {
             try {
-                List<Game> games = service.searchGame(searchField.getText(), limitBox.getValue());
+                List<Game> games = service.searchGame(searchField.getText(), limitBox.getValue(), sortBox.getValue());
                 resultsList.getItems().clear();
 
                 for (Game game : games) {

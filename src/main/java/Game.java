@@ -5,7 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record Game(
         long id,
         String name,
-        String game_type,
+        @JsonProperty("game_type") String gameType,
+        double rating,
+        @JsonProperty("rating_count") int totalRatings,
+        @JsonProperty("first_release_date") long releaseDate,
         @JsonProperty("cover") CoverData cover
 ) {
     public String coverUrl() {
