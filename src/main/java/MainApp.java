@@ -55,7 +55,7 @@ public class MainApp extends Application {
                 if (empty || game == null) {
                     setGraphic(null);
                 } else {
-                    nameLabel.setText(game.name() + " " + game.rating());
+                    nameLabel.setText(game.name() + "\n" + game.platformNames());
 
                     if (game.coverUrl() != null) {
                         String URL = game.coverUrl();

@@ -23,7 +23,7 @@ public class IGDBService {
     public List<Game> searchGame(String gameName, int limit, String sortMode) throws IOException, InterruptedException {
         String query = """
                 search "%s";
-                fields id, name, cover.url, game_type, rating, rating_count, first_release_date;
+                fields id, name, cover.url, game_type, rating, rating_count, first_release_date, platforms.name;
                 where (game_type = 0 | game_type = 8 | game_type = 9 | game_type = 10 | game_type = 11) & (rating > 0);
                 limit %d;
                 """.formatted(gameName, limit);
