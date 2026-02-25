@@ -20,22 +20,11 @@ public class IGDBService {
     }
 
     public List<Game> searchGame(String gameName, int limit) throws IOException, InterruptedException {
-        String sortField = switch("sortOptions") {
-            case "DATE_DESC" -> "first_release_date desc";
-            case "DATE_ASC" -> "first_release_date asc";
-            case "ALPHA" -> "name asc";
-            default -> "rating_count desc";
-        };
-
         String query = """
                 search "%s";
-                fields id, name, cover.url, total_rating, rating_count, first_release_date;
-                where version_parent = null;
-                & (category = 0 | category = 8 | category = 9);
-                & first_release_date != null;
-                sort %s; 
+                fields id, name, cover.url, game_type, rating_count, first_release_date;
                 limit %d;
-                """.formatted(gameName, sortField, limit);
+                """.formatted(gameName, limit);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.igdb.com/v4/games"))
@@ -46,6 +35,7 @@ public class IGDBService {
                 .build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println("Status: " + response.statusCode());
 
         ObjectMapper mapper = new ObjectMapper();
 

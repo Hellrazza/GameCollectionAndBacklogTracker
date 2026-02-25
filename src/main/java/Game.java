@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record Game(
         long id,
         String name,
+        String game_type,
         @JsonProperty("cover") CoverData cover
 ) {
     public String coverUrl() {

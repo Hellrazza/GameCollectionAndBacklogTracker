@@ -28,6 +28,13 @@ public class MainApp extends Application {
 
         ListView<Game> resultsList = new ListView<>();
 
+        ComboBox<String> sortBox = new ComboBox<>();
+        sortBox.getItems().addAll("Alphabetical",
+                "Newest",
+                "Oldest",
+                "Highest Rating");
+        sortBox.setValue("Alphabetical");
+
         resultsList.setCellFactory(param -> new ListCell<>() {
             private final ImageView imageView = new ImageView();
             private final Label nameLabel = new Label();
@@ -75,7 +82,7 @@ public class MainApp extends Application {
             }
         });
 
-        VBox root = new VBox(10, searchField, limitBox, searchButton, resultsList);
+        VBox root = new VBox(10, searchField, limitBox, sortBox, searchButton, resultsList);
         root.setStyle("-fx-padding: 20;");
 
         Scene scene = new Scene(root, 400, 500);
