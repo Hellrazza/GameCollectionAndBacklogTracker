@@ -9,13 +9,10 @@ public class Program {
         IGDBService service = new IGDBService(clientID, accessToken);
 
 
-        List<Game> games = service.searchGame("LittleBigPlanet", 1, "Most Popular");
-
-        System.out.println(games);
+        List<Game> games = manager.retriveGameList();
 
         for (Game game : games) {
             System.out.println(game);
-            manager.saveGame(game);
         }
     }
 }

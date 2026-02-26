@@ -1,5 +1,8 @@
 import java.sql.*;
+import java.sql.Date;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
 
 public class DatabaseManager {
     private final String url = System.getenv("DB_URL");
@@ -80,5 +83,73 @@ public class DatabaseManager {
 
             conn.commit();
         }
+    }
+
+    public List<Game> retriveGameList() throws SQLException {
+        String query = """
+                SELECT g.id,
+                    g.name,
+                    g.gametype,
+                    g.rating,
+                    g.totalratings,
+                    g.releasedate,
+                    g.cover_url,
+                    p.id AS platform_id,
+                    p.name AS platform_name
+                FROM games g
+                LEFT JOIN game_platform gp ON g.id = gp.game_id
+                LEFT JOIN platforms p ON p.id = gp.platform_id
+                ORDER BY g.name;
+                """;
+
+
+        Map<Long, List<Game.Platform>> platformMap = new HashMap<>();
+        Map<Long, Game> gameMap = new LinkedHashMap<>();
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                long gameId = rs.getLong("id");
+
+                if (!gameMap.containsKey(gameId)) {
+                    LocalDate date = rs.getDate("releasedate") != null
+                            ? rs.getDate("releasedate").toLocalDate() : null;
+
+                    long unixDate = date != null ?
+                            date.atStartOfDay(ZoneId.systemDefault())
+                                    .toEpochSecond() : 0;
+
+                    Game game = new Game(
+                            gameId,
+                            rs.getString("name"),
+                            rs.getString("gametype"),
+                            rs.getDouble("rating"),
+                            rs.getInt("totalratings"),
+                            unixDate,
+                            new ArrayList<>(),
+                            rs.getString("cover_url") != null ?
+                                    new Game.CoverData(rs.getString("cover_url"))
+                                    : null
+                    );
+
+                    gameMap.put(gameId, game);
+                }
+
+                long platformId = rs.getLong("platform_id");
+                if (!rs.wasNull()) {
+                    Game.Platform platform = new Game.Platform(
+                            platformId,
+                            rs.getString("platform_name")
+                    );
+
+                    gameMap.get(gameId).platforms().add(platform);
+                }
+            }
+
+        }
+
+        return new ArrayList<>(gameMap.values());
     }
 }
