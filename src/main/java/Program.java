@@ -14,5 +14,13 @@ public class Program {
         for (Game game : games) {
             System.out.println(game);
         }
+
+        manager.removeGame(19164);
+        System.out.println();
+        games = manager.retriveGameList();
+
+        for (Game game : games) {
+            System.out.println(game);
+        }
     }
 }

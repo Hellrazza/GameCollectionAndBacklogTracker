@@ -130,7 +130,7 @@ public class DatabaseManager {
                             unixDate,
                             new ArrayList<>(),
                             rs.getString("cover_url") != null ?
-                                    new Game.CoverData(rs.getString("cover_url"))
+                                    new Game.CoverData(rs.getString("cover_url").replace("https:",""))
                                     : null
                     );
 
@@ -151,5 +151,22 @@ public class DatabaseManager {
         }
 
         return new ArrayList<>(gameMap.values());
+    }
+
+    public void removeGame(long gameId) throws SQLException {
+        String query = """
+                DELETE FROM games
+                WHERE id = %d;
+                """.formatted(gameId);
+
+        try (Connection conn = DriverManager.getConnection(url, user, password)) {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.executeUpdate();
+            }
+            conn.commit();
+        }
+
     }
 }

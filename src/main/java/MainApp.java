@@ -115,7 +115,6 @@ public class MainApp extends Application {
 
                     if (game.coverUrl() != null) {
                         String URL = game.coverUrl();
-
                         Image image = new Image(URL, true);
                         imageView.setImage(image);
                     } else {
