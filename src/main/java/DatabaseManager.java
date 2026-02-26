@@ -153,11 +153,11 @@ public class DatabaseManager {
         return new ArrayList<>(gameMap.values());
     }
 
-    public void removeGame(long gameId) throws SQLException {
+    public void removeGame(Game game) throws SQLException {
         String query = """
                 DELETE FROM games
                 WHERE id = %d;
-                """.formatted(gameId);
+                """.formatted(game.id());
 
         try (Connection conn = DriverManager.getConnection(url, user, password)) {
             conn.setAutoCommit(false);

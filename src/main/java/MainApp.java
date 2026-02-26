@@ -1,4 +1,6 @@
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
@@ -15,6 +17,9 @@ public class MainApp extends Application {
     String accessToken = TwitchAuth.getAccessToken(clientID, clientSecret);
     IGDBService service = new IGDBService(clientID, accessToken);
     DatabaseManager databaseManager = new DatabaseManager();
+
+    private final ObservableList<Game> collectionData = FXCollections.observableArrayList();
+    private ListView<Game> collectionList;
 
     @Override
     public void start(Stage stage) {
@@ -59,39 +64,36 @@ public class MainApp extends Application {
             if (response == yesButton) {
                 try {
                     databaseManager.saveGame(game);
-                    showSuccessMessage(game.name());
+                    loadCollection();
+                    showSuccessMessage(game.name(), "added to");
                 } catch (Exception e) {
                     e.printStackTrace();
-                    showErrorMessage();
+                    showErrorMessage("saved");
                 }
             }
         });
     }
 
-    private void showSuccessMessage(String gameName) {
+    private void showSuccessMessage(String gameName, String action) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Success");
         alert.setHeaderText(null);
-        alert.setContentText(gameName + " added to your collection!");
+        alert.setContentText(gameName + " " + action + " your collection!");
         alert.showAndWait();
     }
 
-    private void showErrorMessage() {
+    private void showErrorMessage(String action) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");
         alert.setHeaderText("Something went wrong");
-        alert.setContentText("The game could not be saved.");
+        alert.setContentText("The game could not be" + action + ".");
         alert.showAndWait();
     }
 
     private VBox createCollectionView() {
-        ListView<Game> collectionList = new ListView<>();
-        try {
-            List<Game> games = databaseManager.retriveGameList();
-            collectionList.getItems().addAll(games);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        ListView<Game> collectionList = new ListView<>(collectionData);
+
+        loadCollection();
 
         collectionList.setCellFactory(param -> new ListCell<>() {
             private final ImageView imageView = new ImageView();
@@ -122,6 +124,16 @@ public class MainApp extends Application {
                     }
 
                     setGraphic(content);
+                }
+            }
+        });
+
+        collectionList.setOnMouseClicked(event -> {
+            if(event.getClickCount() == 2) {
+                Game selectedGame = collectionList.getSelectionModel().getSelectedItem();
+
+                if (selectedGame != null) {
+                    showDeleteConfirmation(selectedGame);
                 }
             }
         });
@@ -208,6 +220,41 @@ public class MainApp extends Application {
         });
         return new VBox(10, searchField, searchButton, limitBox, sortBox, resultsList);
     }
+
+    private void showDeleteConfirmation(Game game) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Remove Game");
+        alert.setHeaderText("Remove game from collection?");
+        alert.setContentText("Do you want to remove: \n\n" + game.name());
+
+        ButtonType yesButton = new ButtonType("Remove");
+        ButtonType noButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(yesButton, noButton);
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == yesButton) {
+                try {
+                    databaseManager.removeGame(game);
+                    loadCollection();
+                    showSuccessMessage(game.name(), "removed from");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    showErrorMessage("removed");
+                }
+            }
+        });
+    }
+
+    private void loadCollection() {
+        try {
+            collectionData.clear();
+            collectionData.addAll(databaseManager.retriveGameList());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
         launch();
     }
