@@ -29,7 +29,7 @@ public class CollectionController {
             try {
                 databaseManager.removeGame(game);
                 loadGames();
-                DialogUtil.success(game.name() + "removed.");
+                DialogUtil.success(game.name() + " removed.");
             } catch (Exception e) {
                 DialogUtil.error("Could not remove " + game.name());
             }
