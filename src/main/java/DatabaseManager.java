@@ -9,7 +9,7 @@ public class DatabaseManager {
     private final String user = System.getenv("DB_USER");
     private final String password = System.getenv("DB_PASSWORD");
 
-    public void saveGame(Game game) throws SQLException {
+    public void saveGame(Game game, List<Game.Platform> selectedPlatforms) throws SQLException {
         String gameSql = """
                 INSERT INTO games (id, name, cover_url, gametype, rating, totalratings, releasedate)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -65,18 +65,18 @@ public class DatabaseManager {
                 stmt.executeUpdate();
             }
 
-            if (game.platforms() != null) {
-                for (Game.Platform platform : game.platforms()) {
-                    try (PreparedStatement stmt = conn.prepareStatement(platformSql)) {
-                        stmt.setLong(1, platform.id());
-                        stmt.setString(2, platform.name());
-                        stmt.executeUpdate();
-                    }
+            if (selectedPlatforms != null)
+            {
+                try (PreparedStatement platformStmt = conn.prepareStatement(platformSql);
+                PreparedStatement joinStmt = conn.prepareStatement(insertJoinSql)) {
+                    for (Game.Platform platform : selectedPlatforms) {
+                        platformStmt.setLong(1, platform.id());
+                        platformStmt.setString(2, platform.name());
+                        platformStmt.executeUpdate();
 
-                    try (PreparedStatement stmt = conn.prepareStatement(insertJoinSql)) {
-                        stmt.setLong(1, game.id());
-                        stmt.setLong(2, platform.id());
-                        stmt.executeUpdate();
+                        joinStmt.setLong(1, game.id());
+                        joinStmt.setLong(2, platform.id());
+                        joinStmt.executeUpdate();
                     }
                 }
             }
@@ -156,13 +156,14 @@ public class DatabaseManager {
     public void removeGame(Game game) throws SQLException {
         String query = """
                 DELETE FROM games
-                WHERE id = %d;
-                """.formatted(game.id());
+                WHERE id = ?;
+                """;
 
         try (Connection conn = DriverManager.getConnection(url, user, password)) {
             conn.setAutoCommit(false);
 
             try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setLong(1, game.id());
                 stmt.executeUpdate();
             }
             conn.commit();

@@ -1,13 +1,13 @@
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.BiConsumer;
 
 public class SearchView extends VBox {
     private final TextField searchField = new TextField();
@@ -19,7 +19,7 @@ public class SearchView extends VBox {
     private final ObservableList<Game> resultsData =
             FXCollections.observableArrayList();
 
-    private Consumer<Game> onAdd;
+    private BiConsumer<Game, List<Game.Platform>> onAdd;
     private Runnable onSearch;
 
     public SearchView() {
@@ -50,7 +50,11 @@ public class SearchView extends VBox {
             if (event.getClickCount() == 2) {
                 Game selectedGame = resultsList.getSelectionModel().getSelectedItem();
                 if (selectedGame != null && onAdd != null) {
-                    onAdd.accept(selectedGame);
+                    List<Game.Platform> selectedPlatforms =
+                            showPlatformDialog(selectedGame);
+                    if (selectedGame != null && !selectedPlatforms.isEmpty()) {
+                        onAdd.accept(selectedGame, selectedPlatforms);
+                    }
                 }
             }
         });
@@ -65,6 +69,46 @@ public class SearchView extends VBox {
         );
 
         setSpacing(10);
+    }
+
+    private List<Game.Platform> showPlatformDialog(Game game) {
+        List<Game.Platform> availablePlatforms = game.platforms();
+
+        if (availablePlatforms == null || availablePlatforms.isEmpty()) {
+            return List.of();
+        }
+
+        Dialog<List<Game.Platform>> dialog = new Dialog<>();
+        dialog.setTitle("Which platforms do you own " + game.name() + " on?");
+
+        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        VBox content = new VBox(8);
+
+        Map<CheckBox, Game.Platform> checkBoxMap = new HashMap<>();
+
+        for (Game.Platform platform : availablePlatforms) {
+            CheckBox checkBox = new CheckBox(platform.name());
+            checkBoxMap.put(checkBox, platform);
+            content.getChildren().add(checkBox);
+        }
+
+        dialog.getDialogPane().setContent(content);
+
+        dialog.setResultConverter(button -> {
+            if (button == saveButtonType) {
+                return checkBoxMap.entrySet().stream()
+                        .filter(entry -> entry.getKey().isSelected())
+                        .map(Map.Entry::getValue)
+                        .toList();
+            }
+            return null;
+        });
+
+        Optional<List<Game.Platform>> result = dialog.showAndWait();
+        return result.orElse(null);
     }
 
     public String getSearchText() {
@@ -83,7 +127,7 @@ public class SearchView extends VBox {
         resultsData.setAll(games);
     }
 
-    public void setOnAdd(Consumer<Game> onAdd) {
+    public void setOnAdd(BiConsumer<Game, List<Game.Platform>> onAdd) {
         this.onAdd = onAdd;
     }
 

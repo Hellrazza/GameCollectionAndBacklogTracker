@@ -33,7 +33,7 @@ public class SearchController {
         }
     }
 
-    private void handleAdd(Game game) {
+    private void handleAdd(Game game, List<Game.Platform> platforms) {
 
         boolean confirm = DialogUtil.confirm(
                 "Add Game",
@@ -43,7 +43,7 @@ public class SearchController {
 
         if (confirm) {
             try {
-                manager.saveGame(game);
+                manager.saveGame(game, platforms);
                 collectionController.loadGames();
                 DialogUtil.success(game.name() + " added.");
             } catch (SQLException e) {
