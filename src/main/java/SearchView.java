@@ -48,11 +48,26 @@ public class SearchView extends VBox {
 
         resultsList.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
+
                 Game selectedGame = resultsList.getSelectionModel().getSelectedItem();
-                if (selectedGame != null && onAdd != null) {
+
+                if (selectedGame == null || onAdd == null) {
+                    return;
+                }
+
+                List<Game.Platform> platforms = selectedGame.platforms();
+
+                if (platforms == null || platforms.isEmpty()) {
+                    return;
+                }
+
+                if (platforms.size() == 1) {
+                    onAdd.accept(selectedGame, platforms);
+                } else {
                     List<Game.Platform> selectedPlatforms =
-                            showPlatformDialog(selectedGame);
-                    if (selectedGame != null && !selectedPlatforms.isEmpty()) {
+                                showPlatformDialog(selectedGame);
+
+                    if (selectedPlatforms != null && !selectedPlatforms.isEmpty()) {
                         onAdd.accept(selectedGame, selectedPlatforms);
                     }
                 }

@@ -1,9 +1,11 @@
+import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.util.function.BiConsumer;
@@ -17,7 +19,8 @@ public class GameListCell extends ListCell<Game> {
     private final ImageView imageView = new ImageView();
     private final Label nameLabel = new Label();
 
-    private final HBox content = new HBox(10);
+    private final VBox textBox = new VBox(nameLabel);
+    private final HBox root = new HBox(15);
 
     public GameListCell(boolean showPlayed, BiConsumer<Game, Boolean> onPlayedToggle) {
         this.showPlayed = showPlayed;
@@ -27,10 +30,17 @@ public class GameListCell extends ListCell<Game> {
         imageView.setFitHeight(90);
         imageView.setPreserveRatio(true);
 
-        content.getChildren().addAll(imageView, nameLabel);
+        textBox.setAlignment(Pos.CENTER_LEFT);
+
+        HBox.setHgrow(textBox, Priority.ALWAYS);
+
+        root.setAlignment(Pos.CENTER_LEFT);
+
+        root.getChildren().addAll(imageView, textBox);
 
         if(showPlayed) {
-            content.getChildren().add(playedCheckBox);
+            root.getChildren().add(playedCheckBox);
+            playedCheckBox.setAlignment(Pos.CENTER_RIGHT);
         }
 
         playedCheckBox.setOnAction(e ->{
@@ -62,6 +72,6 @@ public class GameListCell extends ListCell<Game> {
             playedCheckBox.setSelected(game.played());
         }
 
-        setGraphic(content);
+        setGraphic(root);
     }
 }

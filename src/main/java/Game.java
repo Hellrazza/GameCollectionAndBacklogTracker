@@ -22,7 +22,8 @@ public record Game(
 ) {
     public String coverUrl() {
         if (cover != null && cover.url() != null) {
-            return "https:" + cover.url();
+            String coverURL = cover.url().replace("t_thumb", "t_cover_big");
+            return "https:" + coverURL;
         }
         return null;
     }
