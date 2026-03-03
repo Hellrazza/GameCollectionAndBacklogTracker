@@ -17,7 +17,8 @@ public record Game(
         @JsonProperty("rating_count") int totalRatings,
         @JsonProperty("first_release_date") long releaseDate,
         @JsonProperty("platforms") List<Platform> platforms,
-        @JsonProperty("cover") CoverData cover
+        @JsonProperty("cover") CoverData cover,
+        boolean played
 ) {
     public String coverUrl() {
         if (cover != null && cover.url() != null) {

@@ -1,3 +1,5 @@
+import java.sql.SQLException;
+
 public class CollectionController {
     private final DatabaseManager databaseManager;
     private final CollectionView view;
@@ -7,6 +9,7 @@ public class CollectionController {
         this.view = view;
 
         view.setOnDelete(this::handleDelete);
+        view.setOnPlayedToggle(this::handlePlayedToggle);
         loadGames();
     }
 
@@ -33,6 +36,14 @@ public class CollectionController {
             } catch (Exception e) {
                 DialogUtil.error("Could not remove " + game.name());
             }
+        }
+    }
+
+    public void handlePlayedToggle(Game game, boolean played) {
+        try {
+            databaseManager.updatePlayedGame(game.id(), played);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }

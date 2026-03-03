@@ -38,7 +38,7 @@ public class SearchView extends VBox {
         sortBox.setValue("Relevance");
 
         resultsList.setItems(resultsData);
-        resultsList.setCellFactory(param -> new GameListCell());
+        resultsList.setCellFactory(param -> new GameListCell(false, null));
 
         searchButton.setOnAction(e -> {
             if (onSearch != null) {

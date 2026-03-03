@@ -5,6 +5,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class CollectionView extends VBox {
@@ -13,9 +14,10 @@ public class CollectionView extends VBox {
     private final ListView<Game> listView = new ListView<>(data);
 
     private Consumer<Game> onDelete;
+    private BiConsumer<Game, Boolean> onPlayedToggle;
 
     public CollectionView() {
-        listView.setCellFactory(param -> new GameListCell());
+        listView.setCellFactory(param -> new GameListCell(true, onPlayedToggle));
 
         listView.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) {
@@ -38,4 +40,9 @@ public class CollectionView extends VBox {
         this.onDelete = onDelete;
     }
 
+    public void setOnPlayedToggle(BiConsumer<Game, Boolean> onPlayedToggle) {
+        this.onPlayedToggle = onPlayedToggle;
+
+        listView.setCellFactory(param -> new GameListCell(true, this.onPlayedToggle));
+    }
 }

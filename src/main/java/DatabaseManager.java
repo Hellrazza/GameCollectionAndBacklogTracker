@@ -11,15 +11,16 @@ public class DatabaseManager {
 
     public void saveGame(Game game, List<Game.Platform> selectedPlatforms) throws SQLException {
         String gameSql = """
-                INSERT INTO games (id, name, cover_url, gametype, rating, totalratings, releasedate)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO games (id, name, cover_url, gametype, rating, totalratings, releasedate, played)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT (id) DO UPDATE SET 
                     name = EXCLUDED.name,
                     cover_url = EXCLUDED.cover_url,
                     gametype = EXCLUDED.gametype,
                     rating = EXCLUDED.rating,
                     totalratings = EXCLUDED.totalratings,
-                    releasedate = EXCLUDED.releasedate;
+                    releasedate = EXCLUDED.releasedate,
+                    played = EXCLUDED.played;
                 """;
 
         String platformSql = """
@@ -56,6 +57,8 @@ public class DatabaseManager {
                 } else {
                     stmt.setNull(7, Types.DATE);
                 }
+
+                stmt.setBoolean(8, false);
 
                 stmt.executeUpdate();
             }
@@ -94,6 +97,7 @@ public class DatabaseManager {
                     g.totalratings,
                     g.releasedate,
                     g.cover_url,
+                    g.played,
                     p.id AS platform_id,
                     p.name AS platform_name
                 FROM games g
@@ -131,7 +135,8 @@ public class DatabaseManager {
                             new ArrayList<>(),
                             rs.getString("cover_url") != null ?
                                     new Game.CoverData(rs.getString("cover_url").replace("https:",""))
-                                    : null
+                                    : null,
+                            rs.getBoolean("played")
                     );
 
                     gameMap.put(gameId, game);
@@ -167,6 +172,24 @@ public class DatabaseManager {
                 stmt.executeUpdate();
             }
             conn.commit();
+        }
+
+    }
+
+    public void updatePlayedGame(Long gameId, boolean played) throws SQLException {
+        String sql = """
+               UPDATE games
+               SET played = ?
+               WHERE id = ?;
+               """;
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setBoolean(1, played);
+            stmt.setLong(2, gameId);
+
+            stmt.executeUpdate();
         }
 
     }

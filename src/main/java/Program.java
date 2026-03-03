@@ -15,16 +15,5 @@ public class Program {
             System.out.println(game);
         }
 
-        Game gameRemoved = games.getFirst();
-        System.out.println("ID is:" + gameRemoved.id());
-
-        manager.removeGame(gameRemoved);
-
-        System.out.println();
-        games = manager.retriveGameList();
-
-        for (Game game : games) {
-            System.out.println(game);
-        }
     }
 }
