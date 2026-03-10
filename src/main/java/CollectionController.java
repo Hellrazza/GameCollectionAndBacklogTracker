@@ -1,4 +1,5 @@
 import java.sql.SQLException;
+import java.util.List;
 
 public class CollectionController {
     private final DatabaseManager databaseManager;
@@ -9,6 +10,7 @@ public class CollectionController {
         this.view = view;
 
         view.setOnDelete(this::handleDelete);
+        view.setOnSearch(this::handleSearch);
         view.setOnPlayedToggle(this::handlePlayedToggle);
         loadGames();
     }
@@ -44,6 +46,17 @@ public class CollectionController {
             databaseManager.updatePlayedGame(game.id(), played);
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void handleSearch() {
+        try {
+            List<Game> games = databaseManager.searchGame(view.getSearchText());
+
+            view.setResults(games);
+        } catch (Exception e) {
+            e.printStackTrace();
+            DialogUtil.error("Search failed");
         }
     }
 }
