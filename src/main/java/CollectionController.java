@@ -50,6 +50,7 @@ public class CollectionController {
     }
 
     private void handleSearch() {
+        if (view.getSearchText().equals("Enter Game Name") || view.getSearchText().isEmpty()) {return;}
         try {
             List<Game> games = databaseManager.searchGame(view.getSearchText());
 

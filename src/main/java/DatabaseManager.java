@@ -207,6 +207,7 @@ public class DatabaseManager {
                     g.releasedate,
                     g.cover_url,
                     g.played,
+                    g.added_at,
                     p.id AS platform_id,
                     p.name AS platform_name
                 FROM games g
