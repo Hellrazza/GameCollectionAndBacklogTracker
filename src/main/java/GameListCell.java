@@ -60,17 +60,21 @@ public class GameListCell extends ListCell<Game> {
             return;
         }
 
-        nameLabel.setText(game.name() + "\n" + game.platformNames());
-
         if (game.coverUrl() != null) {
             imageView.setImage(new Image(game.coverUrl(), true));
         } else {
             imageView.setImage(null);
         }
 
+        String dateMode = game.formattedReleaseDate();
+
         if (showPlayed) {
             playedCheckBox.setSelected(game.played());
+            dateMode = game.formattedAddedDate();
         }
+
+        nameLabel.setText(game.name() + "\n" + game.platformNames() + "\n" + dateMode);
+
 
         setGraphic(root);
     }

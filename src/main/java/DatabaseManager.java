@@ -98,6 +98,7 @@ public class DatabaseManager {
                     g.releasedate,
                     g.cover_url,
                     g.played,
+                    g.added_at,
                     p.id AS platform_id,
                     p.name AS platform_name
                 FROM games g
@@ -136,7 +137,8 @@ public class DatabaseManager {
                             rs.getString("cover_url") != null ?
                                     new Game.CoverData(rs.getString("cover_url").replace("https:",""))
                                     : null,
-                            rs.getBoolean("played")
+                            rs.getBoolean("played"),
+                            rs.getTimestamp("added_at").toInstant()
                     );
 
                     gameMap.put(gameId, game);
@@ -246,7 +248,8 @@ public class DatabaseManager {
                                 rs.getString("cover_url") != null
                                         ? new Game.CoverData(rs.getString("cover_url").replace("https:",""))
                                         : null,
-                                rs.getBoolean("played")
+                                rs.getBoolean("played"),
+                                rs.getTimestamp("added_at").toInstant()
                         );
 
                         gameMap.put(gameId, game);

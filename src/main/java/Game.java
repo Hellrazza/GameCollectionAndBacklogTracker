@@ -1,6 +1,7 @@
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -18,7 +19,8 @@ public record Game(
         @JsonProperty("first_release_date") long releaseDate,
         @JsonProperty("platforms") List<Platform> platforms,
         @JsonProperty("cover") CoverData cover,
-        boolean played
+        boolean played,
+        Instant addedAt
 ) {
     public String coverUrl() {
         if (cover != null && cover.url() != null) {
@@ -33,6 +35,14 @@ public record Game(
 
         return Instant.ofEpochSecond(releaseDate).
                 atZone(ZoneId.systemDefault())
+                .toLocalDate()
+                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+    }
+
+    public String formattedAddedDate() {
+        if (addedAt == null) return "Unknown";
+
+        return addedAt.atZone(ZoneId.systemDefault())
                 .toLocalDate()
                 .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
     }
