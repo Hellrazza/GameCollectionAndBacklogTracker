@@ -1,4 +1,6 @@
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class SearchController {
@@ -8,26 +10,31 @@ public class SearchController {
     private final DatabaseManager manager;
     private final CollectionController collectionController;
 
+    private List<Game> originalGames;
+    private List<Game> sortedGames;
+
     public SearchController(IGDBService service, DatabaseManager manager, SearchView view, CollectionController collectionController) {
         this.service = service;
         this.manager = manager;
         this.view = view;
         this.collectionController = collectionController;
+        originalGames = null;
+        sortedGames = null;
 
         view.setOnSearch(this::handleSearch);
         view.setOnAdd(this::handleAdd);
+        view.setOnSortChanged(this::handleSort);
     }
 
     private void handleSearch() {
         if(view.getSearchText().equals("Enter Game Name") || view.getSearchText().isEmpty()) {return;}
         try {
-            List<Game> games = service.searchGame(
+            originalGames = service.searchGame(
                     view.getSearchText(),
-                    view.getLimit(),
-                    view.getSort()
+                    view.getLimit()
             );
 
-            view.setResults(games);
+            handleSort(view.getSort());
         } catch (Exception e) {
             e.printStackTrace();
             DialogUtil.error("Search failed.");
@@ -53,4 +60,39 @@ public class SearchController {
         }
     }
 
+
+    private void handleSort(String option) {
+        if (originalGames == null) return;
+
+        if(option.equals("Relevance")) {
+            sortedGames = new ArrayList<>(originalGames);
+        } else {
+            sortedGames = new ArrayList<>(originalGames);
+            Comparator<Game> comparator = getComparator(option);
+
+            if (comparator != null) {
+                sortedGames.sort(comparator);
+            }
+        }
+
+        view.setResults(sortedGames);
+    }
+
+    private Comparator<Game> getComparator(String option) {
+        return switch (option) {
+            case "Newest" ->
+                    Comparator.comparing(Game::releaseDate, Comparator.nullsLast(Long::compareTo)).reversed();
+            case "Oldest" ->
+                    Comparator.comparing(Game::releaseDate, Comparator.nullsLast(Long::compareTo));
+            case "Alphabetical" ->
+                    Comparator.comparing(Game::name);
+            case "Highest Rated" ->
+                    Comparator.comparing(Game::rating, Comparator.nullsLast(Double::compareTo)).reversed();
+            case "Number of Ratings" ->
+                    Comparator.comparing(Game::totalRatings, Comparator.nullsLast(Integer::compareTo)).reversed();
+
+            default ->
+                null;
+        };
+    }
 }

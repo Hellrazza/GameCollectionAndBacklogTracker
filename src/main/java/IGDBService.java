@@ -20,7 +20,7 @@ public class IGDBService {
         this.httpClient = HttpClient.newHttpClient();
     }
 
-    public List<Game> searchGame(String gameName, int limit, String sortMode) throws IOException, InterruptedException {
+    public List<Game> searchGame(String gameName, int limit) throws IOException, InterruptedException {
         String query = """
                 search "%s";
                 fields id, name, cover.url, game_type, rating, rating_count, first_release_date, platforms.name;
@@ -47,21 +47,6 @@ public class IGDBService {
                 new TypeReference<List<Game>>() {
                 }
         );
-
-        if (!sortMode.equals("Relevance")) {
-            switch (sortMode) {
-                case "Newest" ->
-                        games.sort(Comparator.comparing(Game::releaseDate, Comparator.nullsLast(Long::compareTo)).reversed());
-
-                case "Oldest" ->
-                        games.sort(Comparator.comparing(Game::releaseDate, Comparator.nullsLast(Long::compareTo)));
-                case "Alphabetical" -> games.sort(Comparator.comparing(Game::name));
-                case "Highest Rated" ->
-                        games.sort(Comparator.comparing(Game::rating, Comparator.nullsLast(Double::compareTo)).reversed());
-                case "Number of Ratings" ->
-                    games.sort(Comparator.comparing(Game::totalRatings, Comparator.nullsLast(Integer::compareTo)).reversed());
-            }
-        }
 
         return games;
     }

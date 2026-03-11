@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class SearchView extends VBox {
     private final TextField searchField = new TextField();
@@ -20,13 +21,14 @@ public class SearchView extends VBox {
             FXCollections.observableArrayList();
 
     private BiConsumer<Game, List<Game.Platform>> onAdd;
+    private Consumer<String> onSortChanged;
     private Runnable onSearch;
 
     public SearchView() {
         searchField.setText("Enter Game Name");
 
         limitBox.getItems().addAll(10, 25, 50, 100, 200);
-        limitBox.setValue(10);
+        limitBox.setValue(25);
 
         sortBox.getItems().addAll("Alphabetical",
                 "Newest",
@@ -36,6 +38,12 @@ public class SearchView extends VBox {
                 "Relevance"
         );
         sortBox.setValue("Relevance");
+
+        sortBox.setOnAction(e -> {
+            if (onSortChanged != null) {
+                onSortChanged.accept(sortBox.getValue());
+            }
+        });
 
         resultsList.setItems(resultsData);
         resultsList.setCellFactory(param -> new GameListCell(false, null));
@@ -149,4 +157,6 @@ public class SearchView extends VBox {
     public void setOnSearch(Runnable onSearch) {
         this.onSearch = onSearch;
     }
+
+    public void setOnSortChanged(Consumer<String> onSortChanged) {this.onSortChanged = onSortChanged;}
 }
