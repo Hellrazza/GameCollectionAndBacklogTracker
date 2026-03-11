@@ -1,9 +1,11 @@
 import java.sql.SQLException;
+import java.util.Comparator;
 import java.util.List;
 
 public class CollectionController {
     private final DatabaseManager databaseManager;
     private final CollectionView view;
+    private List<Game> currentGames;
 
     public CollectionController(DatabaseManager databaseManager, CollectionView view) {
         this.databaseManager = databaseManager;
@@ -12,12 +14,15 @@ public class CollectionController {
         view.setOnDelete(this::handleDelete);
         view.setOnSearch(this::handleSearch);
         view.setOnPlayedToggle(this::handlePlayedToggle);
+        view.setOnSortChanged(this::handleSort);
+
         loadGames();
     }
 
     public void loadGames() {
         try {
-            view.setGames(databaseManager.retriveGameList());
+            currentGames = databaseManager.retriveGameList();
+            handleSort(view.getSortOption());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -50,14 +55,49 @@ public class CollectionController {
     }
 
     private void handleSearch() {
-        if (view.getSearchText().equals("Enter Game Name") || view.getSearchText().isEmpty()) {return;}
-        try {
-            List<Game> games = databaseManager.searchGame(view.getSearchText());
+        if (view.getSearchText().equals("Enter Game Name")) {return;}
+        if (view.getSearchText().isEmpty()) {
+            loadGames();
+        }
 
-            view.setResults(games);
+        try {
+            currentGames = databaseManager.searchGame(view.getSearchText());
+
+            handleSort(view.getSortOption());
         } catch (Exception e) {
             e.printStackTrace();
             DialogUtil.error("Search failed");
         }
+    }
+
+
+    private void handleSort(String option) {
+        if (currentGames == null) return;
+
+        currentGames.sort(getComparator(option));
+        view.setResults(currentGames);
+    }
+
+    private Comparator<Game> getComparator(String option) {
+        return switch(option) {
+            case "Alphabetical" ->
+                Comparator.comparing(Game::name, String.CASE_INSENSITIVE_ORDER);
+            case "Newest" ->
+                Comparator.comparing(Game::releaseDate, Comparator.nullsLast(Long::compareTo).reversed());
+            case "Oldest" ->
+                Comparator.comparing(Game::releaseDate, Comparator.nullsLast(Long::compareTo));
+            case "Highest Rated" ->
+                Comparator.comparing(Game::rating, Comparator.nullsLast(Double::compareTo)).reversed();
+            case "Number of Ratings" ->
+                Comparator.comparing(Game::totalRatings, Comparator.nullsLast(Integer::compareTo)).reversed();
+            case "Oldest Added" ->
+                Comparator.comparing(Game::addedAt, Comparator.nullsLast(Comparator.naturalOrder()));
+            case "Recently Added" ->
+                Comparator.comparing(Game::addedAt, Comparator.nullsLast(Comparator.reverseOrder()));
+
+            default ->
+                Comparator.comparing(Game::name);
+        };
+
     }
 }
