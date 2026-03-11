@@ -1,9 +1,13 @@
+import javafx.concurrent.Task;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 public class SearchController {
+
+    private static final int MIN_SEARCH_LENGTH = 2;
 
     private final IGDBService service;
     private final SearchView view;
@@ -12,6 +16,7 @@ public class SearchController {
 
     private List<Game> originalGames;
     private List<Game> sortedGames;
+    private String lastQuery = "";
 
     public SearchController(IGDBService service, DatabaseManager manager, SearchView view, CollectionController collectionController) {
         this.service = service;
@@ -27,18 +32,34 @@ public class SearchController {
     }
 
     private void handleSearch() {
-        if(view.getSearchText().equals("Enter Game Name") || view.getSearchText().isEmpty()) {return;}
-        try {
-            originalGames = service.searchGame(
-                    view.getSearchText(),
-                    view.getLimit()
-            );
+        String searchQuery = view.getSearchText().trim().toLowerCase();
 
+        if(searchQuery.length() < MIN_SEARCH_LENGTH) {return;}
+
+        lastQuery = searchQuery;
+
+        Task<List<Game>> searchTask = new Task<>() {
+            @Override
+            protected List<Game> call() throws Exception {
+                return service.searchGame(searchQuery, view.getLimit());
+            }
+        };
+
+        searchTask.setOnSucceeded(e -> {
+
+            if (!searchQuery.equals(lastQuery)) {
+                return;
+            }
+
+            originalGames = searchTask.getValue();
             handleSort(view.getSort());
-        } catch (Exception e) {
-            e.printStackTrace();
-            DialogUtil.error("Search failed.");
-        }
+        });
+
+        searchTask.setOnFailed(e -> {
+            searchTask.getException().printStackTrace();
+        });
+
+        new Thread(searchTask).start();
     }
 
     private void handleAdd(Game game, List<Game.Platform> platforms) {

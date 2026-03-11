@@ -1,7 +1,9 @@
+import javafx.animation.PauseTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,12 +22,23 @@ public class SearchView extends VBox {
     private final ObservableList<Game> resultsData =
             FXCollections.observableArrayList();
 
+    private final PauseTransition searchDelay = new PauseTransition(Duration.millis(500));
+
     private BiConsumer<Game, List<Game.Platform>> onAdd;
     private Consumer<String> onSortChanged;
     private Runnable onSearch;
 
     public SearchView() {
         searchField.setText("Enter Game Name");
+
+        searchField.textProperty().addListener((obs, oldText, newText) -> {
+            searchDelay.setOnFinished(e -> {
+                if (onSearch != null) {
+                    onSearch.run();
+                }
+            });
+            searchDelay.playFromStart();
+        });
 
         limitBox.getItems().addAll(10, 25, 50, 100, 200);
         limitBox.setValue(25);

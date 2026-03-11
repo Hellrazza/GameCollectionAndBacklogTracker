@@ -58,11 +58,11 @@ public class CollectionController {
         if (view.getSearchText().equals("Enter Game Name")) {return;}
         if (view.getSearchText().isEmpty()) {
             loadGames();
+            return;
         }
 
         try {
             currentGames = databaseManager.searchGame(view.getSearchText());
-
             handleSort(view.getSortOption());
         } catch (Exception e) {
             e.printStackTrace();
