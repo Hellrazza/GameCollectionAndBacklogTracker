@@ -29,10 +29,6 @@ public class DatabaseManager {
                 ON CONFLICT (id) DO NOTHING;
                 """;
 
-        String deleteJoinSql = """
-                DELETE FROM game_platform WHERE game_id = ?;
-                """;
-
         String insertJoinSql = """
                 INSERT INTO game_platform (game_id, platform_id)
                 VALUES (?, ?)
@@ -63,12 +59,7 @@ public class DatabaseManager {
                 stmt.executeUpdate();
             }
 
-            try (PreparedStatement stmt = conn.prepareStatement(deleteJoinSql)) {
-                stmt.setLong(1, game.id());
-                stmt.executeUpdate();
-            }
-
-            if (selectedPlatforms != null)
+            if (selectedPlatforms != null && !selectedPlatforms.isEmpty())
             {
                 try (PreparedStatement platformStmt = conn.prepareStatement(platformSql);
                 PreparedStatement joinStmt = conn.prepareStatement(insertJoinSql)) {

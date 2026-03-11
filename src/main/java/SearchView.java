@@ -14,7 +14,6 @@ import java.util.function.Consumer;
 
 public class SearchView extends VBox {
     private final TextField searchField = new TextField();
-    private final Button searchButton = new Button("Search");
     private final ComboBox<Integer> limitBox = new ComboBox<>();
     private final ComboBox<String> sortBox = new ComboBox<>();
     private final ListView<Game> resultsList = new ListView<>();
@@ -61,12 +60,6 @@ public class SearchView extends VBox {
         resultsList.setItems(resultsData);
         resultsList.setCellFactory(param -> new GameListCell(false, null));
 
-        searchButton.setOnAction(e -> {
-            if (onSearch != null) {
-                onSearch.run();
-            }
-        });
-
         resultsList.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
 
@@ -98,7 +91,6 @@ public class SearchView extends VBox {
 
         getChildren().addAll(
                 searchField,
-                searchButton,
                 limitBox,
                 sortBox,
                 resultsList
