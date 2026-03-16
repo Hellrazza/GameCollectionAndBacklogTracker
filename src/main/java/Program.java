@@ -9,10 +9,10 @@ public class Program {
         IGDBService service = new IGDBService(clientID, accessToken);
 
 
-        List<Game> games = manager.retriveGameList();
+        List<Game.Platform> platforms = manager.getPlatformsInCollection();
 
-        for (Game game : games) {
-            System.out.println(game);
+        for (Game.Platform platform : platforms) {
+            System.out.println(platform);
         }
 
     }

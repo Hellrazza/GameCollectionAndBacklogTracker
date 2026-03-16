@@ -262,4 +262,29 @@ public class DatabaseManager {
         }
         return new ArrayList<>(gameMap.values());
     }
+    
+    public List<Game.Platform> getPlatformsInCollection() throws SQLException {
+        String sql = """
+                SELECT DISTINCT p.id, p.name
+                FROM platforms p
+                JOIN game_platform gp ON p.id = gp.platform_id
+                ORDER BY p.name;
+                """;
+
+        List<Game.Platform> platforms = new ArrayList<>();
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                platforms.add(new Game.Platform(
+                        rs.getLong("id"),
+                        rs.getString("name")
+                ));
+            }
+        }
+
+        return platforms;
+    }
 }
