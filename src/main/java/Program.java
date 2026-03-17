@@ -7,13 +7,15 @@ public class Program {
         String accessToken = TwitchAuth.getAccessToken(clientID, clientSecret);
         DatabaseManager manager = new DatabaseManager();
         IGDBService service = new IGDBService(clientID, accessToken);
+        CredentialsService credentials = new CredentialsService();
 
 
-        List<Game.Platform> platforms = manager.getPlatformsInCollection();
+        credentials.createUser("Ryan", "Example");
 
-        for (Game.Platform platform : platforms) {
-            System.out.println(platform);
-        }
+        String hashed = credentials.retrieveHashedPassword("Ryan");
+
+
+        System.out.println(credentials.validLogin("Ryan", "Example"));
 
     }
 }
