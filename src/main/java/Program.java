@@ -9,13 +9,8 @@ public class Program {
         IGDBService service = new IGDBService(clientID, accessToken);
         CredentialsService credentials = new CredentialsService();
 
+        List<Game.Platform> games = manager.getPlatformsInCollection(1);
 
-        credentials.createUser("Ryan", "Example");
-
-        String hashed = credentials.retrieveHashedPassword("Ryan");
-
-
-        System.out.println(credentials.validLogin("Ryan", "Example"));
-
+        System.out.println(games);
     }
 }

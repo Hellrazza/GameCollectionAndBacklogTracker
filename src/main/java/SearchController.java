@@ -18,6 +18,8 @@ public class SearchController {
     private List<Game> sortedGames;
     private String lastQuery = "";
 
+    private int uuid = 1;
+
     public SearchController(IGDBService service, DatabaseManager manager, SearchView view, CollectionController collectionController) {
         this.service = service;
         this.manager = manager;
@@ -72,7 +74,7 @@ public class SearchController {
 
         if (confirm) {
             try {
-                manager.saveGame(game, platforms);
+                manager.saveGame(uuid, game, platforms);
                 collectionController.loadGames();
                 DialogUtil.success(game.name() + " added.");
             } catch (SQLException e) {
