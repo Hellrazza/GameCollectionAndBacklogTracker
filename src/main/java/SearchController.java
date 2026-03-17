@@ -18,7 +18,7 @@ public class SearchController {
     private List<Game> sortedGames;
     private String lastQuery = "";
 
-    private int uuid = 1;
+    private int uuid = 2;
 
     public SearchController(IGDBService service, DatabaseManager manager, SearchView view, CollectionController collectionController) {
         this.service = service;
