@@ -18,8 +18,6 @@ public class SearchController {
     private List<Game> sortedGames;
     private String lastQuery = "";
 
-    private int uuid = 2;
-
     public SearchController(IGDBService service, DatabaseManager manager, SearchView view, CollectionController collectionController) {
         this.service = service;
         this.manager = manager;
@@ -36,7 +34,9 @@ public class SearchController {
     private void handleSearch() {
         String searchQuery = view.getSearchText().trim().toLowerCase();
 
-        if(searchQuery.length() < MIN_SEARCH_LENGTH) {return;}
+        if (searchQuery.length() < MIN_SEARCH_LENGTH) {
+            return;
+        }
 
         lastQuery = searchQuery;
 
@@ -74,7 +74,7 @@ public class SearchController {
 
         if (confirm) {
             try {
-                manager.saveGame(uuid, game, platforms);
+                manager.saveGame(Session.getActiveUUID(), game, platforms);
                 collectionController.loadGames();
                 DialogUtil.success(game.name() + " added.");
             } catch (SQLException e) {
@@ -87,7 +87,7 @@ public class SearchController {
     private void handleSort(String option) {
         if (originalGames == null) return;
 
-        if(option.equals("Relevance")) {
+        if (option.equals("Relevance")) {
             sortedGames = new ArrayList<>(originalGames);
         } else {
             sortedGames = new ArrayList<>(originalGames);
@@ -103,19 +103,16 @@ public class SearchController {
 
     private Comparator<Game> getComparator(String option) {
         return switch (option) {
-            case "Newest" ->
-                    Comparator.comparing(Game::releaseDate, Comparator.nullsLast(Long::compareTo)).reversed();
-            case "Oldest" ->
-                    Comparator.comparing(Game::releaseDate, Comparator.nullsLast(Long::compareTo));
-            case "Alphabetical" ->
-                    Comparator.comparing(Game::name);
+            case "Newest" -> Comparator.comparing(Game::releaseDate, Comparator.nullsLast(Long::compareTo)).reversed();
+            case "Oldest" -> Comparator.comparing(Game::releaseDate, Comparator.nullsLast(Long::compareTo));
+            case "Alphabetical" -> Comparator.comparing(Game::name);
             case "Highest Rated" ->
                     Comparator.comparing(Game::rating, Comparator.nullsLast(Double::compareTo)).reversed();
             case "Number of Ratings" ->
                     Comparator.comparing(Game::totalRatings, Comparator.nullsLast(Integer::compareTo)).reversed();
 
-            default ->
-                null;
+            default -> null;
         };
     }
+
 }

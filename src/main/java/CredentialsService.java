@@ -75,11 +75,17 @@ public class CredentialsService {
 
     public int validLogin(String username, String plainPassword) throws SQLException {
         String hashedPassword = retrieveHashedPassword(username);
+        if (hashedPassword == null || hashedPassword.isEmpty()) {
+            return -1;
+        }
+
         if (checkPassword(plainPassword, hashedPassword)) {
             return getUUID(username);
         }
-        return -1;
+        return -2;
     }
+
+
 
 
     public static String hashPassword(String password) {

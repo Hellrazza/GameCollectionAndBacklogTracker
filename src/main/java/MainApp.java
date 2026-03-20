@@ -8,6 +8,7 @@ import javafx.stage.Stage;
 public class MainApp extends Application {
     private IGDBService service;
     private DatabaseManager databaseManager;
+    private CredentialsService credentialsService;
 
     @Override
     public void start(Stage stage) {
@@ -18,6 +19,7 @@ public class MainApp extends Application {
 
         service = new IGDBService(clientID, accessToken);
         databaseManager = new DatabaseManager();
+        credentialsService = new CredentialsService();
 
         BorderPane root = new BorderPane();
         root.setStyle("-fx-padding: 20;");
@@ -29,16 +31,18 @@ public class MainApp extends Application {
         navBar.setStyle("-fx-padding: 10; -fx-alignment: center;");
         root.setTop(navBar);
 
+        CredentialsView credentialsView = new CredentialsView();
         CollectionView collectionView = new CollectionView();
         SearchView searchView = new SearchView();
 
+        CredentialsController credentialsController = new CredentialsController(credentialsService, credentialsView);
         CollectionController collectionController = new CollectionController(databaseManager, collectionView);
         SearchController searchController = new SearchController(service, databaseManager, searchView, collectionController);
 
         collectionModeButton.setOnAction(e -> root.setCenter(collectionView));
         searchModeButton.setOnAction(e -> root.setCenter(searchView));
 
-        root.setCenter(collectionView);
+        root.setCenter(credentialsView);
 
         Scene scene = new Scene(root, 400, 500);
 

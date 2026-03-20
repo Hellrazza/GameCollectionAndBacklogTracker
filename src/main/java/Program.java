@@ -8,9 +8,5 @@ public class Program {
         DatabaseManager manager = new DatabaseManager();
         IGDBService service = new IGDBService(clientID, accessToken);
         CredentialsService credentials = new CredentialsService();
-
-        List<Game.Platform> games = manager.getPlatformsInCollection(1);
-
-        System.out.println(games);
     }
 }

@@ -6,7 +6,6 @@ public class CollectionController {
     private final DatabaseManager databaseManager;
     private final CollectionView view;
     private List<Game> currentGames;
-    private int uuid = 2;
 
     public CollectionController(DatabaseManager databaseManager, CollectionView view) {
         this.databaseManager = databaseManager;
@@ -22,7 +21,7 @@ public class CollectionController {
 
     public void loadGames() {
         try {
-            currentGames = databaseManager.retriveGameList(uuid);
+            currentGames = databaseManager.retriveGameList(Session.getActiveUUID());
             handleSort(view.getSortOption());
         } catch (Exception e) {
             e.printStackTrace();
@@ -38,7 +37,7 @@ public class CollectionController {
 
         if (confirm) {
             try {
-                databaseManager.removeGame(uuid, game);
+                databaseManager.removeGame(Session.getActiveUUID(), game);
                 loadGames();
                 DialogUtil.success(game.name() + " removed.");
             } catch (Exception e) {
@@ -49,7 +48,7 @@ public class CollectionController {
 
     public void handlePlayedToggle(Game game, boolean played) {
         try {
-            databaseManager.updatePlayedGame(uuid, game.id(), played);
+            databaseManager.updatePlayedGame(Session.getActiveUUID(), game.id(), played);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -63,7 +62,7 @@ public class CollectionController {
         }
 
         try {
-            currentGames = databaseManager.searchGame(uuid, view.getSearchText());
+            currentGames = databaseManager.searchGame(Session.getActiveUUID(), view.getSearchText());
             handleSort(view.getSortOption());
         } catch (Exception e) {
             e.printStackTrace();
