@@ -1,10 +1,11 @@
 import java.sql.SQLException;
-import java.util.SortedMap;
 
 public class CredentialsController {
 
     private CredentialsView view;
     private CredentialsService service;
+
+    private Runnable onLoginSuccess;
 
     public CredentialsController(CredentialsService service, CredentialsView view) {
         this.view = view;
@@ -21,7 +22,14 @@ public class CredentialsController {
             if (!username.isEmpty() && !password.isEmpty()) {
                 System.out.println("LOG IN");
                 login(view.getUsername(), view.getPlainPassword());
-                view.setSessionUUIDLabel(Integer.toString(Session.getActiveUUID()));
+                if (Session.getActiveUUID() != -1 || Session.getActiveUUID() != -2) {
+                    view.setSessionUUIDLabel(Integer.toString(Session.getActiveUUID()));
+                    if (onLoginSuccess != null) {
+                        onLoginSuccess.run();
+                    }
+                } else {
+                    System.out.println("Login Failed");
+                }
             }
         }
         catch (SQLException e) {
@@ -52,6 +60,16 @@ public class CredentialsController {
     public void login(String username, String plainPassword) throws SQLException{
         Session.setActiveUUID(service.validLogin(username, plainPassword));
     }
+
+    public void logout() {
+        Session.setActiveUUID(-1);
+    }
+
+    public void setOnLoginSuccess(Runnable onLoginSuccess) {this.onLoginSuccess = onLoginSuccess;}
+
+
+
+
 
 
 
